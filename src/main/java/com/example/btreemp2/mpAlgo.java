@@ -27,26 +27,44 @@ class mpAlgo {
         int i = node.keys.size() - 1;
 
         if (node.isLeaf) {
-            if (node.keys.isEmpty()) {
-                node.keys.add(key);
-            } else {
-                while (i >= 0 && key < node.keys.get(i)) {
-                    i--;
+            // Insert into leaf node in sorted order
+            while (i >= 0 && key < node.keys.get(i)) {
+                i--;
+            }
+            node.keys.add(i + 1, key);
+
+            // If leaf node becomes overfull, split it
+            if (node.keys.size() > 2) {
+                if (node == root) {
+                    Node newRoot = new Node(false);
+                    newRoot.children.add(root);
+                    splitChild(newRoot, 0);
+                    root = newRoot;
+                } else {
+                    Node parent = findParent(root, node);
+                    int index = parent.children.indexOf(node);
+                    splitChild(parent, index);
                 }
-                node.keys.add(i + 1, key);
             }
         } else {
+            // Find the child to recurse into
             while (i >= 0 && key < node.keys.get(i)) {
                 i--;
             }
             i++;
-            if (node.children.get(i).keys.size() == 3) {
+            Node child = node.children.get(i);
+
+            // Split child if it has 3 keys before inserting
+            if (child.keys.size() == 3) {
                 splitChild(node, i);
                 if (key > node.keys.get(i)) {
                     i++;
                 }
+                child = node.children.get(i); // Update child after split
             }
-            insertNonFull(node.children.get(i), key);
+
+            // Recursively insert into the child
+            insertNonFull(child, key);
         }
     }
 
@@ -54,13 +72,16 @@ class mpAlgo {
         Node child = parent.children.get(index);
         Node newNode = new Node(child.isLeaf);
 
+        // Move middle key to parent
         int middleKey = child.keys.get(1);
         parent.keys.add(index, middleKey);
 
+        // Move rightmost key to new node
         newNode.keys.add(child.keys.get(2));
         child.keys.remove(2);
         child.keys.remove(1);
 
+        // Move children to new node if not a leaf
         if (!child.isLeaf) {
             newNode.children.add(child.children.get(2));
             newNode.children.add(child.children.get(3));
@@ -68,7 +89,22 @@ class mpAlgo {
             child.children.remove(2);
         }
 
+        // Add new node to parent's children
         parent.children.add(index + 1, newNode);
+
+        // If parent becomes overfull, split it
+        if (parent.keys.size() > 2) {
+            if (parent == root) {
+                Node newRoot = new Node(false);
+                newRoot.children.add(root);
+                splitChild(newRoot, 0);
+                root = newRoot;
+            } else {
+                Node grandParent = findParent(root, parent);
+                int parentIndex = grandParent.children.indexOf(parent);
+                splitChild(grandParent, parentIndex);
+            }
+        }
     }
 
     // Search for a key
