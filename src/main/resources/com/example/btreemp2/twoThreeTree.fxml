@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.btreemp2.twoThreeTreeController">
-
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" styleClass="backgroundPane" stylesheets="@../../../CSS/twoThreeThree.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.btreemp2.twoThreeTreeController">
+   <children>
+      <HBox alignment="CENTER" layoutX="137.0" layoutY="9.0" prefHeight="94.0" prefWidth="1280.0" styleClass="bar_color" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label styleClass="titleLabel" text="2-3 Trees" />
+         </children>
+      </HBox>
+      <HBox layoutX="67.0" layoutY="590.0" prefHeight="53.0" prefWidth="1280.0" styleClass="bar_color" stylesheets="@../../../CSS/twoThreeThree.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <padding>
+            <Insets left="30.0" />
+         </padding>
+      </HBox>
+   </children>
 </AnchorPane>

@@ -1,0 +1,18 @@
+@font-face {
+    font-family: 'Patriot Black';
+    src: url("../fonts/Patriot-Black.otf");
+}
+
+.bar_color{
+    -fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #fff700, #ffe000);
+}
+
+.backgroundPane{
+    -fx-background-image: url(../images/2-3Tree_UI.png);
+}
+
+.titleLabel{
+    -fx-font-family: "Patriot Black";
+    -fx-text-fill: #04512c;
+    -fx-font-size: 70px;
+}
