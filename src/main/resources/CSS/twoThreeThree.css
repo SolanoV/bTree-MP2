@@ -2,6 +2,10 @@
     font-family: 'Patriot Black';
     src: url("../fonts/Patriot-Black.otf");
 }
+@font-face {
+    font-family: 'JejuHallasan';
+    src: url("../fonts/JejuHallasan-Regular.ttf");
+}
 
 .bar_color{
     -fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #fff700, #ffe000);
@@ -12,7 +16,34 @@
 }
 
 .titleLabel{
-    -fx-font-family: "Patriot Black";
+    -fx-font-family: "JejuHallasan";
     -fx-text-fill: #04512c;
     -fx-font-size: 70px;
+}
+
+.functionBorder{
+    -fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #fff700, #ffe000);
+    -fx-background-radius: 10px;
+}
+.functionBackgrond{
+        -fx-background-color: #04512c;
+    -fx-background-radius: 10px;
+}
+
+.buttonSlider{
+    -fx-background-color: transparent;
+}
+.textfunction{
+    -fx-text-fill: white;
+    -fx-font-family: 'JejuHallasan';
+    -fx-font-size: 50px;
+}
+
+.textfieldChalk{
+    -fx-background-color: transparent;
+    -fx-border-color: white;
+    -fx-border-width: 5 ;
+    -fx-border-style: dashed;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: gray;
 }
