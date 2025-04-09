@@ -2,17 +2,22 @@ package com.example.btreemp2;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List; // Added import for List
 import java.util.Queue;
 import java.util.Scanner;
 
 class mpAlgo {
-    private Node root;
+    Node root;
+    private List<Node> searchPath = new ArrayList<>();
 
     public mpAlgo() {
         root = new Node(true);
     }
 
-    // Insert a key into the tree
+    public List<Node> getSearchPath() {
+        return searchPath;
+    }
+
     public void insert(int key) {
         if (root.keys.size() == 3) {
             Node newRoot = new Node(false);
@@ -27,13 +32,11 @@ class mpAlgo {
         int i = node.keys.size() - 1;
 
         if (node.isLeaf) {
-            // Insert into leaf node in sorted order
             while (i >= 0 && key < node.keys.get(i)) {
                 i--;
             }
             node.keys.add(i + 1, key);
 
-            // If leaf node becomes overfull, split it
             if (node.keys.size() > 2) {
                 if (node == root) {
                     Node newRoot = new Node(false);
@@ -47,23 +50,19 @@ class mpAlgo {
                 }
             }
         } else {
-            // Find the child to recurse into
             while (i >= 0 && key < node.keys.get(i)) {
                 i--;
             }
             i++;
             Node child = node.children.get(i);
 
-            // Split child if it has 3 keys before inserting
             if (child.keys.size() == 3) {
                 splitChild(node, i);
                 if (key > node.keys.get(i)) {
                     i++;
                 }
-                child = node.children.get(i); // Update child after split
+                child = node.children.get(i);
             }
-
-            // Recursively insert into the child
             insertNonFull(child, key);
         }
     }
@@ -72,16 +71,12 @@ class mpAlgo {
         Node child = parent.children.get(index);
         Node newNode = new Node(child.isLeaf);
 
-        // Move middle key to parent
         int middleKey = child.keys.get(1);
         parent.keys.add(index, middleKey);
 
-        // Move rightmost key to new node
         newNode.keys.add(child.keys.get(2));
         child.keys.remove(2);
         child.keys.remove(1);
-
-        // Move children to new node if not a leaf
         if (!child.isLeaf) {
             newNode.children.add(child.children.get(2));
             newNode.children.add(child.children.get(3));
@@ -89,10 +84,7 @@ class mpAlgo {
             child.children.remove(2);
         }
 
-        // Add new node to parent's children
         parent.children.add(index + 1, newNode);
-
-        // If parent becomes overfull, split it
         if (parent.keys.size() > 2) {
             if (parent == root) {
                 Node newRoot = new Node(false);
@@ -107,14 +99,15 @@ class mpAlgo {
         }
     }
 
-    // Search for a key
     public boolean search(int key) {
+        searchPath.clear();
         return searchKey(root, key);
     }
 
     private boolean searchKey(Node node, int key) {
         if (node == null) return false;
 
+        searchPath.add(node);
         int i = 0;
         while (i < node.keys.size() && key > node.keys.get(i)) {
             i++;
@@ -131,7 +124,6 @@ class mpAlgo {
         return searchKey(node.children.get(i), key);
     }
 
-    // Delete a key
     public void delete(int key) {
         if (!search(key)) {
             System.out.println("Key " + key + " not found in the tree.");
@@ -156,7 +148,6 @@ class mpAlgo {
                     fixUnderflow(findParent(root, node), node);
                 }
             } else {
-                // Replace with predecessor
                 Node predNode = node.children.get(i);
                 while (!predNode.isLeaf) {
                     predNode = predNode.children.get(predNode.children.size() - 1);
@@ -169,7 +160,6 @@ class mpAlgo {
             Node child = node.children.get(i);
             if (child.keys.size() == 1 && child != root) {
                 fixUnderflow(node, child);
-                // Recalculate index after fixing underflow
                 i = 0;
                 while (i < node.keys.size() && key > node.keys.get(i)) {
                     i++;
@@ -192,11 +182,10 @@ class mpAlgo {
     }
 
     private void fixUnderflow(Node parent, Node child) {
-        if (parent == null) return; // Root case handled in delete
+        if (parent == null) return;
 
         int index = parent.children.indexOf(child);
 
-        // Try borrowing from left sibling
         if (index > 0 && parent.children.get(index - 1).keys.size() > 1) {
             Node leftSibling = parent.children.get(index - 1);
             child.keys.add(0, parent.keys.get(index - 1));
@@ -205,7 +194,6 @@ class mpAlgo {
                 child.children.add(0, leftSibling.children.remove(leftSibling.children.size() - 1));
             }
         }
-        // Try borrowing from right sibling
         else if (index < parent.children.size() - 1 && parent.children.get(index + 1).keys.size() > 1) {
             Node rightSibling = parent.children.get(index + 1);
             child.keys.add(parent.keys.get(index));
@@ -214,7 +202,6 @@ class mpAlgo {
                 child.children.add(rightSibling.children.remove(0));
             }
         }
-        // Merge with left sibling
         else if (index > 0) {
             Node leftSibling = parent.children.get(index - 1);
             leftSibling.keys.add(parent.keys.remove(index - 1));
@@ -225,7 +212,6 @@ class mpAlgo {
                 fixUnderflow(findParent(root, parent), parent);
             }
         }
-        // Merge with right sibling
         else {
             Node rightSibling = parent.children.get(index + 1);
             child.keys.add(parent.keys.remove(index));
@@ -238,7 +224,6 @@ class mpAlgo {
         }
     }
 
-    // Print the tree
     public void printTree() {
         printNode(root, 0);
     }
