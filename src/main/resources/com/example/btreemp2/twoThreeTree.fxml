@@ -91,7 +91,7 @@
                   <HBox alignment="CENTER_LEFT" prefHeight="52.0" prefWidth="430.0" spacing="10.0">
                      <children>
                         <Label styleClass="textfunction" text="Insert:" />
-                        <TextField fx:id="insertTextField" prefHeight="50.0" prefWidth="157.0" styleClass="textfieldChalk" />
+                        <TextField fx:id="insertTextField" alignment="CENTER" prefHeight="50.0" prefWidth="157.0" styleClass="textfieldChalk" />
                         <Button fx:id="insertButton" mnemonicParsing="false" styleClass="buttonSlider">
                            <graphic>
                               <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
@@ -112,7 +112,7 @@
                   <HBox alignment="CENTER_LEFT" prefHeight="47.0" prefWidth="430.0" spacing="10.0">
                      <children>
                         <Label styleClass="textfunction" text="Delete:" />
-                        <TextField fx:id="deleteTextField" prefHeight="50.0" prefWidth="155.0" styleClass="textfieldChalk" />
+                        <TextField fx:id="deleteTextField" alignment="CENTER" prefHeight="50.0" prefWidth="155.0" styleClass="textfieldChalk" />
                         <Button fx:id="deleteButton" mnemonicParsing="false" styleClass="buttonSlider">
                            <graphic>
                               <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
@@ -133,7 +133,7 @@
                   <HBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="430.0" spacing="10.0">
                      <children>
                         <Label styleClass="textfunction" text="Search:" />
-                        <TextField fx:id="searchTextField" prefHeight="50.0" prefWidth="146.0" styleClass="textfieldChalk" />
+                        <TextField fx:id="searchTextField" alignment="CENTER" prefHeight="50.0" prefWidth="146.0" styleClass="textfieldChalk" />
                         <Button fx:id="searchButton" mnemonicParsing="false" styleClass="buttonSlider">
                            <graphic>
                               <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">

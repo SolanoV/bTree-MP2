@@ -45,6 +45,9 @@
     -fx-border-width: 5 ;
     -fx-border-style: dashed;
     -fx-text-fill: white;
+    -fx-text-alignment: center;
+    -fx-font-family: 'JejuHallasan';
+    -fx-font-size: 20px;
     -fx-prompt-text-fill: gray;
 }
 
@@ -74,7 +77,7 @@
 }
 
 .node-label {
-    -fx-font-size: 14px;
+    -fx-font-size: 20px;
     -fx-font-family: "Arial";
 }
 

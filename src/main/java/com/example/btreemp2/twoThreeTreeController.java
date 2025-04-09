@@ -41,11 +41,11 @@ public class twoThreeTreeController extends Application implements Initializable
     private mpAlgo tree;
     private Stack<TreeState> undoStack = new Stack<>();
     private Stack<TreeState> redoStack = new Stack<>();
-    private static final double NODE_WIDTH = 72;
-    private static final double NODE_HEIGHT = 48;
-    private static final double HORIZONTAL_SPACING = 96;
+    private static final double NODE_WIDTH = 60;
+    private static final double NODE_HEIGHT = 40;
+    private static final double HORIZONTAL_SPACING = 90;
     private static final double VERTICAL_SPACING = 120;
-    private static final double ROOT_X = 500;
+    private static final double ROOT_X = 400;
     private static final double ROOT_Y = 150;
 
     private Map<Node, Rectangle> nodeToRectangleMap = new HashMap<>();
@@ -147,11 +147,14 @@ public class twoThreeTreeController extends Application implements Initializable
         if (insertTextField == null) return;
         try {
             int value = Integer.parseInt(insertTextField.getText().trim());
-            saveState();
-            tree.insert(value);
-            redoStack.clear();
             drawTree();
-            insertTextField.clear();
+            animateInsertPath(value, () -> {
+                saveState();
+                tree.insert(value);
+                redoStack.clear();
+                drawTree();
+                insertTextField.clear();
+            });
         } catch (NumberFormatException e) {
             showMessage("Please enter a valid number");
         }
@@ -161,11 +164,17 @@ public class twoThreeTreeController extends Application implements Initializable
         if (deleteTextField == null) return;
         try {
             int value = Integer.parseInt(deleteTextField.getText().trim());
-            saveState();
-            tree.delete(value);
-            redoStack.clear();
+            boolean exists = tree.search(value);
             drawTree();
-            deleteTextField.clear();
+            animateSearchPath(value, exists, "Element " + value + " is found and deleted", () -> {
+                if (exists) {
+                    saveState();
+                    tree.delete(value);
+                    redoStack.clear();
+                    drawTree();
+                }
+                deleteTextField.clear();
+            });
         } catch (NumberFormatException e) {
             showMessage("Please enter a valid number");
         }
@@ -177,8 +186,7 @@ public class twoThreeTreeController extends Application implements Initializable
             int value = Integer.parseInt(searchTextField.getText().trim());
             boolean found = tree.search(value);
             drawTree();
-            animateSearchPath(value, found);
-            searchTextField.clear();
+            animateSearchPath(value, found, null, () -> searchTextField.clear());
         } catch (NumberFormatException e) {
             showMessage("Please enter a valid number");
         }
@@ -227,7 +235,7 @@ public class twoThreeTreeController extends Application implements Initializable
         if (tree.root.keys.isEmpty()) return;
 
         double treeWidth = calculateTreeWidth(tree.root);
-        double startX = ROOT_X;
+        double startX = ROOT_X - treeWidth / 2;
         double startY = ROOT_Y;
         drawNode(tree.root, startX, startY, treeWidth);
 
@@ -252,8 +260,13 @@ public class twoThreeTreeController extends Application implements Initializable
             Label label = new Label(String.valueOf(node.keys.get(i)));
             label.getStyleClass().add("node-label");
             label.setTextFill(Color.WHITE);
-            label.setLayoutX(nodeX + i * NODE_WIDTH + NODE_WIDTH / 2 - 15);
-            label.setLayoutY(y + NODE_HEIGHT / 2 - 10);
+
+            double textWidth = label.getText().length() * 8;
+            double labelX = nodeX + i * NODE_WIDTH + (NODE_WIDTH - textWidth) / 2;
+            double labelY = y + (NODE_HEIGHT - 20) / 2;
+
+            label.setLayoutX(labelX);
+            label.setLayoutY(labelY);
             label.setUserData(rect);
             keyToLabelMap.put(node.keys.get(i), label);
             root.getChildren().add(label);
@@ -310,7 +323,12 @@ public class twoThreeTreeController extends Application implements Initializable
         }
     }
 
-    private void animateSearchPath(int value, boolean found) {
+    private void animateSearchPath(int value, boolean found, String foundMessage, Runnable onFinish) {
+        // Disable buttons at the start of the animation
+        if (insertButton != null) insertButton.setDisable(true);
+        if (deleteButton != null) deleteButton.setDisable(true);
+        if (searchButton != null) searchButton.setDisable(true);
+
         List<Node> searchPath = tree.getSearchPath();
         SequentialTransition sequentialTransition = new SequentialTransition();
 
@@ -319,19 +337,22 @@ public class twoThreeTreeController extends Application implements Initializable
             Rectangle rect = nodeToRectangleMap.get(currentNode);
             if (rect == null) continue;
 
-            PauseTransition highlightNode = new PauseTransition(Duration.seconds(1));
+            PauseTransition highlightNode = new PauseTransition(Duration.seconds(0.35));
             highlightNode.setOnFinished(e -> {
-                rect.getStyleClass().add("node-label-found");
+                rect.setStroke(Color.RED);
+                rect.setStrokeWidth(3);
             });
             sequentialTransition.getChildren().add(highlightNode);
 
             if (i < searchPath.size() - 1) {
                 Node nextNode = searchPath.get(i + 1);
                 List<Line> lines = nodeToLinesMap.get(currentNode);
+                if (lines == null || lines.isEmpty()) continue;
                 Line lineToHighlight = null;
                 for (Line line : lines) {
                     double lineEndX = line.getEndX();
                     Rectangle nextRect = nodeToRectangleMap.get(nextNode);
+                    if (nextRect == null) continue;
                     double nextRectCenterX = nextRect.getX() + nextRect.getWidth() / 2;
                     if (Math.abs(lineEndX - nextRectCenterX) < 1) {
                         lineToHighlight = line;
@@ -341,7 +362,7 @@ public class twoThreeTreeController extends Application implements Initializable
 
                 if (lineToHighlight != null) {
                     Line finalLine = lineToHighlight;
-                    PauseTransition highlightLine = new PauseTransition(Duration.seconds(1));
+                    PauseTransition highlightLine = new PauseTransition(Duration.seconds(0.35));
                     highlightLine.setOnFinished(e -> {
                         finalLine.setStroke(Color.RED);
                         finalLine.setStrokeWidth(5);
@@ -351,7 +372,7 @@ public class twoThreeTreeController extends Application implements Initializable
             }
         }
 
-        PauseTransition highlightValue = new PauseTransition(Duration.seconds(0.5));
+        PauseTransition highlightValue = new PauseTransition(Duration.seconds(0.35));
         highlightValue.setOnFinished(e -> {
             if (found) {
                 highlightNode(value);
@@ -360,7 +381,8 @@ public class twoThreeTreeController extends Application implements Initializable
         sequentialTransition.getChildren().add(highlightValue);
 
         sequentialTransition.setOnFinished(e -> {
-            showMessage(value + (found ? " value is found" : " not found"));
+            String message = found ? (foundMessage != null ? foundMessage : "Element " + value + " value is found") : "Element " + value + " not found";
+            showMessage(message);
             for (int i = 0; i < searchPath.size() - (found ? 1 : 0); i++) {
                 Node node = searchPath.get(i);
                 Rectangle rect = nodeToRectangleMap.get(node);
@@ -369,10 +391,104 @@ public class twoThreeTreeController extends Application implements Initializable
                     rect.setStrokeWidth(3);
                 }
                 List<Line> lines = nodeToLinesMap.get(node);
-                for (Line line : lines) {
-                    line.setStroke(Color.WHITE);
-                    line.setStrokeWidth(3);
+                if (lines != null) {
+                    for (Line line : lines) {
+                        line.setStroke(Color.WHITE);
+                        line.setStrokeWidth(3);
+                    }
                 }
+            }
+            // Re-enable buttons after the animation completes
+            if (insertButton != null) insertButton.setDisable(false);
+            if (deleteButton != null) deleteButton.setDisable(false);
+            if (searchButton != null) searchButton.setDisable(false);
+            if (onFinish != null) {
+                onFinish.run();
+            }
+        });
+
+        sequentialTransition.play();
+    }
+
+    private void animateInsertPath(int value, Runnable onFinish) {
+        // Disable buttons at the start of the animation
+        if (insertButton != null) insertButton.setDisable(true);
+        if (deleteButton != null) deleteButton.setDisable(true);
+        if (searchButton != null) searchButton.setDisable(true);
+
+        tree.search(value);
+        List<Node> insertPath = tree.getSearchPath();
+        SequentialTransition sequentialTransition = new SequentialTransition();
+
+        for (int i = 0; i < insertPath.size(); i++) {
+            Node currentNode = insertPath.get(i);
+            Rectangle rect = nodeToRectangleMap.get(currentNode);
+            if (rect == null) continue;
+
+            PauseTransition highlightNode = new PauseTransition(Duration.seconds(0.35));
+            highlightNode.setOnFinished(e -> {
+                rect.setStroke(Color.GREEN);
+                rect.setStrokeWidth(3);
+            });
+            sequentialTransition.getChildren().add(highlightNode);
+
+            if (i < insertPath.size() - 1) {
+                Node nextNode = insertPath.get(i + 1);
+                List<Line> lines = nodeToLinesMap.get(currentNode);
+                if (lines == null || lines.isEmpty()) continue;
+                Line lineToHighlight = null;
+                for (Line line : lines) {
+                    double lineEndX = line.getEndX();
+                    Rectangle nextRect = nodeToRectangleMap.get(nextNode);
+                    if (nextRect == null) continue;
+                    double nextRectCenterX = nextRect.getX() + nextRect.getWidth() / 2;
+                    if (Math.abs(lineEndX - nextRectCenterX) < 1) {
+                        lineToHighlight = line;
+                        break;
+                    }
+                }
+
+                if (lineToHighlight != null) {
+                    Line finalLine = lineToHighlight;
+                    PauseTransition highlightLine = new PauseTransition(Duration.seconds(0.35));
+                    highlightLine.setOnFinished(e -> {
+                        finalLine.setStroke(Color.GREEN);
+                        finalLine.setStrokeWidth(5);
+                    });
+                    sequentialTransition.getChildren().add(highlightLine);
+                }
+            } else {
+                PauseTransition highlightFinalNode = new PauseTransition(Duration.seconds(0.35));
+                highlightFinalNode.setOnFinished(e -> {
+                    rect.setStroke(Color.GREEN);
+                    rect.setStrokeWidth(5);
+                });
+                sequentialTransition.getChildren().add(highlightFinalNode);
+            }
+        }
+
+        sequentialTransition.setOnFinished(e -> {
+            showMessage("Element " + value + " is inserted");
+            for (Node node : insertPath) {
+                Rectangle rect = nodeToRectangleMap.get(node);
+                if (rect != null) {
+                    rect.setStroke(Color.WHITE);
+                    rect.setStrokeWidth(3);
+                }
+                List<Line> lines = nodeToLinesMap.get(node);
+                if (lines != null) {
+                    for (Line line : lines) {
+                        line.setStroke(Color.WHITE);
+                        line.setStrokeWidth(3);
+                    }
+                }
+            }
+            // Re-enable buttons after the animation completes
+            if (insertButton != null) insertButton.setDisable(false);
+            if (deleteButton != null) deleteButton.setDisable(false);
+            if (searchButton != null) searchButton.setDisable(false);
+            if (onFinish != null) {
+                onFinish.run();
             }
         });
 

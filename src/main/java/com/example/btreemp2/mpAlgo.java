@@ -2,7 +2,7 @@ package com.example.btreemp2;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List; // Added import for List
+import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 
@@ -38,13 +38,13 @@ class mpAlgo {
             node.keys.add(i + 1, key);
 
             if (node.keys.size() > 2) {
-                if (node == root) {
+                Node parent = findParent(root, node);
+                if (parent == null) {
                     Node newRoot = new Node(false);
-                    newRoot.children.add(root);
+                    newRoot.children.add(node);
                     splitChild(newRoot, 0);
                     root = newRoot;
                 } else {
-                    Node parent = findParent(root, node);
                     int index = parent.children.indexOf(node);
                     splitChild(parent, index);
                 }
@@ -61,9 +61,8 @@ class mpAlgo {
                 if (key > node.keys.get(i)) {
                     i++;
                 }
-                child = node.children.get(i);
             }
-            insertNonFull(child, key);
+            insertNonFull(node.children.get(i), key);
         }
     }
 
@@ -77,6 +76,7 @@ class mpAlgo {
         newNode.keys.add(child.keys.get(2));
         child.keys.remove(2);
         child.keys.remove(1);
+
         if (!child.isLeaf) {
             newNode.children.add(child.children.get(2));
             newNode.children.add(child.children.get(3));
@@ -85,16 +85,19 @@ class mpAlgo {
         }
 
         parent.children.add(index + 1, newNode);
-        if (parent.keys.size() > 2) {
-            if (parent == root) {
+
+        while (parent.keys.size() > 2) {
+            Node grandParent = findParent(root, parent);
+            if (grandParent == null) {
                 Node newRoot = new Node(false);
-                newRoot.children.add(root);
+                newRoot.children.add(parent);
                 splitChild(newRoot, 0);
                 root = newRoot;
+                break;
             } else {
-                Node grandParent = findParent(root, parent);
                 int parentIndex = grandParent.children.indexOf(parent);
                 splitChild(grandParent, parentIndex);
+                parent = grandParent;
             }
         }
     }
@@ -167,18 +170,20 @@ class mpAlgo {
             }
             deleteKey(node.children.get(i), key);
         }
-    }
 
-    private Node findParent(Node current, Node child) {
-        if (current == null || current.isLeaf) return null;
-        for (int i = 0; i < current.children.size(); i++) {
-            if (current.children.get(i) == child) {
-                return current;
+        // After deletion, check if the current node has too many keys
+        if (node.keys.size() > 2) {
+            Node parent = findParent(root, node);
+            if (parent == null) {
+                Node newRoot = new Node(false);
+                newRoot.children.add(node);
+                splitChild(newRoot, 0);
+                root = newRoot;
+            } else {
+                int index = parent.children.indexOf(node);
+                splitChild(parent, index);
             }
-            Node found = findParent(current.children.get(i), child);
-            if (found != null) return found;
         }
-        return null;
     }
 
     private void fixUnderflow(Node parent, Node child) {
@@ -193,16 +198,14 @@ class mpAlgo {
             if (!child.isLeaf) {
                 child.children.add(0, leftSibling.children.remove(leftSibling.children.size() - 1));
             }
-        }
-        else if (index < parent.children.size() - 1 && parent.children.get(index + 1).keys.size() > 1) {
+        } else if (index < parent.children.size() - 1 && parent.children.get(index + 1).keys.size() > 1) {
             Node rightSibling = parent.children.get(index + 1);
             child.keys.add(parent.keys.get(index));
             parent.keys.set(index, rightSibling.keys.remove(0));
             if (!child.isLeaf) {
                 child.children.add(rightSibling.children.remove(0));
             }
-        }
-        else if (index > 0) {
+        } else if (index > 0) {
             Node leftSibling = parent.children.get(index - 1);
             leftSibling.keys.add(parent.keys.remove(index - 1));
             leftSibling.keys.addAll(child.keys);
@@ -211,8 +214,7 @@ class mpAlgo {
             if (parent != root && parent.keys.size() < 1) {
                 fixUnderflow(findParent(root, parent), parent);
             }
-        }
-        else {
+        } else {
             Node rightSibling = parent.children.get(index + 1);
             child.keys.add(parent.keys.remove(index));
             child.keys.addAll(rightSibling.keys);
@@ -222,6 +224,32 @@ class mpAlgo {
                 fixUnderflow(findParent(root, parent), parent);
             }
         }
+
+        // After fixing underflow, check if the parent has too many keys
+        if (parent.keys.size() > 2) {
+            Node grandParent = findParent(root, parent);
+            if (grandParent == null) {
+                Node newRoot = new Node(false);
+                newRoot.children.add(parent);
+                splitChild(newRoot, 0);
+                root = newRoot;
+            } else {
+                int parentIndex = grandParent.children.indexOf(parent);
+                splitChild(grandParent, parentIndex);
+            }
+        }
+    }
+
+    private Node findParent(Node current, Node child) {
+        if (current == null || current.isLeaf) return null;
+        for (int i = 0; i < current.children.size(); i++) {
+            if (current.children.get(i) == child) {
+                return current;
+            }
+            Node found = findParent(current.children.get(i), child);
+            if (found != null) return found;
+        }
+        return null;
     }
 
     public void printTree() {
