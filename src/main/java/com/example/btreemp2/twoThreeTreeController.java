@@ -43,9 +43,9 @@ public class twoThreeTreeController extends Application implements Initializable
     private Stack<TreeState> redoStack = new Stack<>();
     private static final double NODE_WIDTH = 60;
     private static final double NODE_HEIGHT = 40;
-    private static final double HORIZONTAL_SPACING = 90;
+    private static final double HORIZONTAL_SPACING = 100;
     private static final double VERTICAL_SPACING = 120;
-    private static final double ROOT_X = 400;
+    private static final double ROOT_X = 500;
     private static final double ROOT_Y = 150;
 
     private Map<Node, Rectangle> nodeToRectangleMap = new HashMap<>();
