@@ -64,22 +64,6 @@
                               <String fx:value="insidebuttonHover" />
                            </styleClass>
                         </Button>
-                        <Button fx:id="InfoButton" mnemonicParsing="false">
-                           <graphic>
-                              <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../../../images/infobuttonWhite.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
-                           <HBox.margin>
-                              <Insets left="110.0" />
-                           </HBox.margin>
-                           <styleClass>
-                              <String fx:value="buttonSlider" />
-                              <String fx:value="insidebuttonHover" />
-                           </styleClass>
-                        </Button>
                      </children>
                      <VBox.margin>
                         <Insets top="20.0" />
