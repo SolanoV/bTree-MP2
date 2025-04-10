@@ -324,7 +324,7 @@ public class twoThreeTreeController extends Application implements Initializable
     }
 
     private void animateSearchPath(int value, boolean found, String foundMessage, Runnable onFinish) {
-        // Disable buttons at the start of the animation
+
         if (insertButton != null) insertButton.setDisable(true);
         if (deleteButton != null) deleteButton.setDisable(true);
         if (searchButton != null) searchButton.setDisable(true);
