@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
@@ -37,15 +38,16 @@ public class twoThreeTreeController extends Application implements Initializable
     @FXML private Button clearButton;
     @FXML private AnchorPane root;
     @FXML private Label messageLabel;
+    @FXML private Label printNodes;
 
     private mpAlgo tree;
     private Stack<TreeState> undoStack = new Stack<>();
     private Stack<TreeState> redoStack = new Stack<>();
-    private static final double NODE_WIDTH = 60;
+    private static final double NODE_WIDTH = 50;
     private static final double NODE_HEIGHT = 40;
-    private static final double HORIZONTAL_SPACING = 100;
-    private static final double VERTICAL_SPACING = 120;
-    private static final double ROOT_X = 500;
+    private static final double HORIZONTAL_SPACING = 90; // Increased to prevent overlap
+    private static final double VERTICAL_SPACING = 90;
+    private static final double ROOT_X = 650;
     private static final double ROOT_Y = 150;
 
     private Map<Node, Rectangle> nodeToRectangleMap = new HashMap<>();
@@ -71,6 +73,11 @@ public class twoThreeTreeController extends Application implements Initializable
 
         if (messageLabel != null) {
             messageLabel.setVisible(false);
+        }
+
+        if (printNodes != null) {
+            printNodes.setText("");
+            printNodes.setWrapText(true); // Enable text wrapping
         }
 
         if (menuButton != null) {
@@ -153,6 +160,7 @@ public class twoThreeTreeController extends Application implements Initializable
                 tree.insert(value);
                 redoStack.clear();
                 drawTree();
+                updatePrintNodes();
                 insertTextField.clear();
             });
         } catch (NumberFormatException e) {
@@ -172,6 +180,7 @@ public class twoThreeTreeController extends Application implements Initializable
                     tree.delete(value);
                     redoStack.clear();
                     drawTree();
+                    updatePrintNodes();
                 }
                 deleteTextField.clear();
             });
@@ -197,6 +206,7 @@ public class twoThreeTreeController extends Application implements Initializable
             redoStack.push(new TreeState(tree.root));
             tree.root = undoStack.pop().root;
             drawTree();
+            updatePrintNodes();
         }
     }
 
@@ -205,6 +215,7 @@ public class twoThreeTreeController extends Application implements Initializable
             saveState();
             tree.root = redoStack.pop().root;
             drawTree();
+            updatePrintNodes();
         }
     }
 
@@ -217,6 +228,7 @@ public class twoThreeTreeController extends Application implements Initializable
         tree = new mpAlgo();
         redoStack.clear();
         drawTree();
+        updatePrintNodes();
     }
 
     private void saveState() {
@@ -228,7 +240,7 @@ public class twoThreeTreeController extends Application implements Initializable
 
     private void drawTree() {
         if (root == null) return;
-        root.getChildren().removeIf(node -> node instanceof Rectangle || node instanceof Line || node instanceof Label);
+        root.getChildren().removeIf(node -> node instanceof Rectangle || node instanceof Line || node instanceof StackPane);
         nodeToRectangleMap.clear();
         nodeToLinesMap.clear();
         keyToLabelMap.clear();
@@ -261,16 +273,15 @@ public class twoThreeTreeController extends Application implements Initializable
             label.getStyleClass().add("node-label");
             label.setTextFill(Color.WHITE);
 
-            double textWidth = label.getText().length() * 8;
-            double labelX = nodeX + i * NODE_WIDTH + (NODE_WIDTH - textWidth) / 2;
-            double labelY = y + (NODE_HEIGHT - 20) / 2;
+            StackPane labelContainer = new StackPane(label);
+            labelContainer.setPrefSize(NODE_WIDTH, NODE_HEIGHT);
+            labelContainer.setLayoutX(nodeX + i * NODE_WIDTH);
+            labelContainer.setLayoutY(y);
 
-            label.setLayoutX(labelX);
-            label.setLayoutY(labelY);
-            label.setUserData(rect);
             keyToLabelMap.put(node.keys.get(i), label);
-            root.getChildren().add(label);
-            label.toFront();
+            label.setUserData(rect);
+            root.getChildren().add(labelContainer);
+            labelContainer.toFront();
         }
 
         nodeToLinesMap.put(node, new ArrayList<>());
@@ -324,7 +335,6 @@ public class twoThreeTreeController extends Application implements Initializable
     }
 
     private void animateSearchPath(int value, boolean found, String foundMessage, Runnable onFinish) {
-
         if (insertButton != null) insertButton.setDisable(true);
         if (deleteButton != null) deleteButton.setDisable(true);
         if (searchButton != null) searchButton.setDisable(true);
@@ -398,7 +408,6 @@ public class twoThreeTreeController extends Application implements Initializable
                     }
                 }
             }
-            // Re-enable buttons after the animation completes
             if (insertButton != null) insertButton.setDisable(false);
             if (deleteButton != null) deleteButton.setDisable(false);
             if (searchButton != null) searchButton.setDisable(false);
@@ -411,7 +420,6 @@ public class twoThreeTreeController extends Application implements Initializable
     }
 
     private void animateInsertPath(int value, Runnable onFinish) {
-        // Disable buttons at the start of the animation
         if (insertButton != null) insertButton.setDisable(true);
         if (deleteButton != null) deleteButton.setDisable(true);
         if (searchButton != null) searchButton.setDisable(true);
@@ -483,7 +491,6 @@ public class twoThreeTreeController extends Application implements Initializable
                     }
                 }
             }
-            // Re-enable buttons after the animation completes
             if (insertButton != null) insertButton.setDisable(false);
             if (deleteButton != null) deleteButton.setDisable(false);
             if (searchButton != null) searchButton.setDisable(false);
@@ -539,6 +546,30 @@ public class twoThreeTreeController extends Application implements Initializable
             messageLabel.setVisible(false);
         });
         pause.play();
+    }
+
+    private void updatePrintNodes() {
+        if (printNodes == null) return;
+        List<Integer> inOrderKeys = new ArrayList<>();
+        inOrderTraversal(tree.root, inOrderKeys);
+        if (inOrderKeys.isEmpty()) {
+            printNodes.setText("");
+        } else {
+            printNodes.setText(String.join(", ", inOrderKeys.stream().map(String::valueOf).toList()));
+        }
+    }
+
+    private void inOrderTraversal(Node node, List<Integer> keys) {
+        if (node == null) return;
+        for (int i = 0; i < node.keys.size(); i++) {
+            if (!node.isLeaf && i < node.children.size()) {
+                inOrderTraversal(node.children.get(i), keys);
+            }
+            keys.add(node.keys.get(i));
+            if (!node.isLeaf && i == node.keys.size() - 1) {
+                inOrderTraversal(node.children.get(i + 1), keys);
+            }
+        }
     }
 
     private static class TreeState {

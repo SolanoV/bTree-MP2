@@ -22,11 +22,11 @@
 }
 
 .functionBorder{
-    -fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #fff700, #ffe000);
+    -fx-background-color: linear-gradient(from 10% 10% to 100% 100%, #fff700, #ffe000);
     -fx-background-radius: 10px;
 }
 .functionBackgrond{
-        -fx-background-color: #04512c;
+    -fx-background-color: #04512c;
     -fx-background-radius: 10px;
 }
 
@@ -88,3 +88,17 @@
     -fx-arc-width: 20;
     -fx-arc-height: 20;
 }
+
+.printPane{
+    -fx-background-color: #04512c;
+    -fx-background-radius: 10px;
+}
+
+.printText{
+    -fx-text-fill: white;
+    -fx-font-family: JejuHallasan;
+    -fx-font-size: 20px;
+}
+
+
+

@@ -13,15 +13,34 @@
 
 <AnchorPane fx:id="root" prefHeight="720.0" prefWidth="1280.0" styleClass="backgroundPane" stylesheets="@../../../CSS/twoThreeThree.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.btreemp2.twoThreeTreeController">
    <children>
-      <HBox alignment="CENTER" layoutX="137.0" layoutY="9.0" prefHeight="94.0" prefWidth="1280.0" styleClass="bar_color" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <HBox layoutX="67.0" layoutY="590.0" prefHeight="53.0" prefWidth="1280.0" styleClass="bar_color" stylesheets="@../../../CSS/twoThreeThree.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <padding>
             <Insets left="30.0" />
          </padding>
       </HBox>
-      <AnchorPane fx:id="menu" layoutX="810.0" layoutY="94.0" maxHeight="442.0" maxWidth="470.0" prefHeight="442.0" prefWidth="470.0" styleClass="functionBorder" AnchorPane.rightAnchor="0.0">
+      <HBox alignment="CENTER" layoutX="137.0" layoutY="9.0" prefHeight="94.0" prefWidth="1280.0" styleClass="bar_color" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      <AnchorPane prefHeight="95.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox layoutY="150.0" maxHeight="307.0" maxWidth="331.0" prefHeight="307.0" prefWidth="331.0" styleClass="functionBackgrond" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+            <Label alignment="CENTER" layoutX="399.0" layoutY="11.0" styleClass="titleLabel" text="2-3 Trees" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+            <Button fx:id="menuButton" alignment="CENTER_RIGHT" layoutX="1179.0" layoutY="24.0" mnemonicParsing="false" AnchorPane.rightAnchor="20.0">
+               <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../images/greenLine.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <styleClass>
+                  <String fx:value="buttonSlider" />
+                  <String fx:value="buttonHover" />
+               </styleClass>
+            </Button>
+            <Label fx:id="messageLabel" alignment="CENTER" layoutX="607.0" layoutY="666.4" prefHeight="54.0" prefWidth="1280.0" styleClass="messageText" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="menu" layoutX="810.0" layoutY="94.0" maxHeight="555.0" maxWidth="470.0" prefHeight="555.0" prefWidth="470.0" styleClass="functionBorder" AnchorPane.rightAnchor="0.0">
+         <children>
+            <VBox layoutY="150.0" maxHeight="307.0" maxWidth="331.0" prefHeight="307.0" prefWidth="331.0" styleClass="functionBackgrond" AnchorPane.bottomAnchor="150.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
                <children>
                   <HBox alignment="CENTER_LEFT" prefHeight="63.0" prefWidth="430.0" spacing="20.0">
                      <children>
@@ -137,25 +156,20 @@
                   </HBox>
                </children>
             </VBox>
-         </children>
-      </AnchorPane>
-      <AnchorPane prefHeight="95.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <Label alignment="CENTER" layoutX="399.0" layoutY="11.0" styleClass="titleLabel" text="2-3 Trees" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-            <Button fx:id="menuButton" alignment="CENTER_RIGHT" layoutX="1179.0" layoutY="24.0" mnemonicParsing="false" AnchorPane.rightAnchor="20.0">
-               <graphic>
-                  <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../../../images/greenLine.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <styleClass>
-                  <String fx:value="buttonSlider" />
-                  <String fx:value="buttonHover" />
-               </styleClass>
-            </Button>
-            <Label fx:id="messageLabel" alignment="CENTER" layoutX="607.0" layoutY="666.4" prefHeight="54.0" prefWidth="1280.0" styleClass="messageText" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+            <VBox layoutX="22.0" layoutY="424.0" prefHeight="114.0" prefWidth="430.0" styleClass="printPane" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
+               <children>
+                  <Label prefHeight="18.0" prefWidth="424.0" styleClass="printText" text="Nodes:">
+                     <VBox.margin>
+                        <Insets left="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="printNodes" prefHeight="83.0" prefWidth="420.0" styleClass="printText" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets left="10.0" />
+                     </VBox.margin>
+                  </Label>
+               </children>
+            </VBox>
          </children>
       </AnchorPane>
    </children>
