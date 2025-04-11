@@ -1,10 +1,11 @@
 package com.example.btreemp2;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Node {
-    ArrayList<Integer> keys;
-    ArrayList<Node> children;
+    List<String> keys;
+    List<Node> children;
     boolean isLeaf;
 
     public Node(boolean isLeaf) {
@@ -12,5 +13,4 @@ public class Node {
         this.children = new ArrayList<>();
         this.isLeaf = isLeaf;
     }
-
 }

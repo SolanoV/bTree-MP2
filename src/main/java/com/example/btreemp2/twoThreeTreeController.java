@@ -45,14 +45,15 @@ public class twoThreeTreeController extends Application implements Initializable
     private Stack<TreeState> redoStack = new Stack<>();
     private static final double NODE_WIDTH = 50;
     private static final double NODE_HEIGHT = 40;
-    private static final double HORIZONTAL_SPACING = 90; // Increased to prevent overlap
+    private static final double HORIZONTAL_SPACING = 90;
     private static final double VERTICAL_SPACING = 90;
     private static final double ROOT_X = 650;
     private static final double ROOT_Y = 150;
 
     private Map<Node, Rectangle> nodeToRectangleMap = new HashMap<>();
     private Map<Node, List<Line>> nodeToLinesMap = new HashMap<>();
-    private Map<Integer, Label> keyToLabelMap = new HashMap<>();
+    private Map<String, Label> keyToLabelMap = new HashMap<>();
+    private String firstNodeType = null;
 
     public static void main(String[] args) {
         launch(args);
@@ -77,7 +78,7 @@ public class twoThreeTreeController extends Application implements Initializable
 
         if (printNodes != null) {
             printNodes.setText("");
-            printNodes.setWrapText(true); // Enable text wrapping
+            printNodes.setWrapText(true);
         }
 
         if (menuButton != null) {
@@ -150,55 +151,92 @@ public class twoThreeTreeController extends Application implements Initializable
         }
     }
 
+    private boolean isNumeric(String str) {
+        return str.matches("\\d+");
+    }
+
+    private boolean isAlphabet(String str) {
+        return str.matches("[a-zA-Z]+");
+    }
+
+    private boolean validateInput(String value) {
+        if (value.isEmpty()) {
+            showMessage("Input cannot be empty");
+            return false;
+        }
+
+        if (firstNodeType == null) {
+            if (isNumeric(value)) {
+                firstNodeType = "number";
+            } else if (isAlphabet(value)) {
+                firstNodeType = "alphabet";
+            } else {
+                showMessage("Input must be either a number or an alphabet");
+                return false;
+            }
+            return true;
+        } else if (firstNodeType.equals("number") && !isNumeric(value)) {
+            showMessage("Only numbers are allowed after inserting a number");
+            return false;
+        } else if (firstNodeType.equals("alphabet") && !isAlphabet(value)) {
+            showMessage("Only alphabets are allowed after inserting an alphabet");
+            return false;
+        }
+        return true;
+    }
+
     private void handleInsert() {
         if (insertTextField == null) return;
-        try {
-            int value = Integer.parseInt(insertTextField.getText().trim());
-            drawTree();
-            animateInsertPath(value, () -> {
-                saveState();
-                tree.insert(value);
-                redoStack.clear();
-                drawTree();
-                updatePrintNodes();
-                insertTextField.clear();
-            });
-        } catch (NumberFormatException e) {
-            showMessage("Please enter a valid number");
+        String value = insertTextField.getText().trim();
+        if (!validateInput(value)) {
+            insertTextField.clear();
+            return;
         }
+
+        drawTree();
+        animateInsertPath(value, () -> {
+            saveState();
+            tree.insert(value);
+            redoStack.clear();
+            drawTree();
+            updatePrintNodes();
+            insertTextField.clear();
+        });
     }
 
     private void handleDelete() {
         if (deleteTextField == null) return;
-        try {
-            int value = Integer.parseInt(deleteTextField.getText().trim());
-            boolean exists = tree.search(value);
-            drawTree();
-            animateSearchPath(value, exists, "Element " + value + " is found and deleted", () -> {
-                if (exists) {
-                    saveState();
-                    tree.delete(value);
-                    redoStack.clear();
-                    drawTree();
-                    updatePrintNodes();
-                }
-                deleteTextField.clear();
-            });
-        } catch (NumberFormatException e) {
-            showMessage("Please enter a valid number");
+        String value = deleteTextField.getText().trim();
+        if (!validateInput(value)) {
+            deleteTextField.clear();
+            return;
         }
+
+        boolean exists = tree.search(value);
+        drawTree();
+        animateSearchPath(value, exists, "Element " + value + " is found and deleted", () -> {
+            if (exists) {
+                saveState();
+                tree.delete(value);
+                redoStack.clear();
+                drawTree();
+                updatePrintNodes();
+            }
+            deleteTextField.clear();
+        });
     }
 
     private void handleSearch() {
         if (searchTextField == null) return;
-        try {
-            int value = Integer.parseInt(searchTextField.getText().trim());
-            boolean found = tree.search(value);
-            drawTree();
-            animateSearchPath(value, found, null, () -> searchTextField.clear());
-        } catch (NumberFormatException e) {
-            showMessage("Please enter a valid number");
+        String value = searchTextField.getText().trim();
+        if (!validateInput(value)) {
+            searchTextField.clear();
+            return;
         }
+
+        boolean found = tree.search(value);
+        drawTree();
+        animateSearchPath(value, found, null, () -> searchTextField.clear());
     }
 
     private void handleUndo() {
@@ -226,6 +264,7 @@ public class twoThreeTreeController extends Application implements Initializable
         }
         saveState();
         tree = new mpAlgo();
+        firstNodeType = null;
         redoStack.clear();
         drawTree();
         updatePrintNodes();
@@ -269,7 +308,7 @@ public class twoThreeTreeController extends Application implements Initializable
         root.getChildren().add(rect);
 
         for (int i = 0; i < node.keys.size(); i++) {
-            Label label = new Label(String.valueOf(node.keys.get(i)));
+            Label label = new Label(node.keys.get(i));
             label.getStyleClass().add("node-label");
             label.setTextFill(Color.WHITE);
 
@@ -334,7 +373,7 @@ public class twoThreeTreeController extends Application implements Initializable
         }
     }
 
-    private void animateSearchPath(int value, boolean found, String foundMessage, Runnable onFinish) {
+    private void animateSearchPath(String value, boolean found, String foundMessage, Runnable onFinish) {
         if (insertButton != null) insertButton.setDisable(true);
         if (deleteButton != null) deleteButton.setDisable(true);
         if (searchButton != null) searchButton.setDisable(true);
@@ -419,7 +458,7 @@ public class twoThreeTreeController extends Application implements Initializable
         sequentialTransition.play();
     }
 
-    private void animateInsertPath(int value, Runnable onFinish) {
+    private void animateInsertPath(String value, Runnable onFinish) {
         if (insertButton != null) insertButton.setDisable(true);
         if (deleteButton != null) deleteButton.setDisable(true);
         if (searchButton != null) searchButton.setDisable(true);
@@ -502,7 +541,7 @@ public class twoThreeTreeController extends Application implements Initializable
         sequentialTransition.play();
     }
 
-    private void highlightNode(int value) {
+    private void highlightNode(String value) {
         Label label = keyToLabelMap.get(value);
         if (label != null) {
             Rectangle rect = (Rectangle) label.getUserData();
@@ -550,16 +589,16 @@ public class twoThreeTreeController extends Application implements Initializable
 
     private void updatePrintNodes() {
         if (printNodes == null) return;
-        List<Integer> inOrderKeys = new ArrayList<>();
+        List<String> inOrderKeys = new ArrayList<>();
         inOrderTraversal(tree.root, inOrderKeys);
         if (inOrderKeys.isEmpty()) {
             printNodes.setText("");
         } else {
-            printNodes.setText(String.join(", ", inOrderKeys.stream().map(String::valueOf).toList()));
+            printNodes.setText(String.join(", ", inOrderKeys));
         }
     }
 
-    private void inOrderTraversal(Node node, List<Integer> keys) {
+    private void inOrderTraversal(Node node, List<String> keys) {
         if (node == null) return;
         for (int i = 0; i < node.keys.size(); i++) {
             if (!node.isLeaf && i < node.children.size()) {

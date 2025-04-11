@@ -1,12 +1,10 @@
 package com.example.btreemp2;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Scanner;
 
-class mpAlgo {
+public class mpAlgo {
     Node root;
     private List<Node> searchPath = new ArrayList<>();
 
@@ -18,7 +16,7 @@ class mpAlgo {
         return searchPath;
     }
 
-    public void insert(int key) {
+    public void insert(String key) {
         if (root.keys.size() == 3) {
             Node newRoot = new Node(false);
             newRoot.children.add(root);
@@ -28,11 +26,11 @@ class mpAlgo {
         insertNonFull(root, key);
     }
 
-    private void insertNonFull(Node node, int key) {
+    private void insertNonFull(Node node, String key) {
         int i = node.keys.size() - 1;
 
         if (node.isLeaf) {
-            while (i >= 0 && key < node.keys.get(i)) {
+            while (i >= 0 && key.compareTo(node.keys.get(i)) < 0) {
                 i--;
             }
             node.keys.add(i + 1, key);
@@ -50,7 +48,7 @@ class mpAlgo {
                 }
             }
         } else {
-            while (i >= 0 && key < node.keys.get(i)) {
+            while (i >= 0 && key.compareTo(node.keys.get(i)) < 0) {
                 i--;
             }
             i++;
@@ -58,7 +56,7 @@ class mpAlgo {
 
             if (child.keys.size() == 3) {
                 splitChild(node, i);
-                if (key > node.keys.get(i)) {
+                if (key.compareTo(node.keys.get(i)) > 0) {
                     i++;
                 }
             }
@@ -70,7 +68,7 @@ class mpAlgo {
         Node child = parent.children.get(index);
         Node newNode = new Node(child.isLeaf);
 
-        int middleKey = child.keys.get(1);
+        String middleKey = child.keys.get(1);
         parent.keys.add(index, middleKey);
 
         newNode.keys.add(child.keys.get(2));
@@ -102,21 +100,21 @@ class mpAlgo {
         }
     }
 
-    public boolean search(int key) {
+    public boolean search(String key) {
         searchPath.clear();
         return searchKey(root, key);
     }
 
-    private boolean searchKey(Node node, int key) {
+    private boolean searchKey(Node node, String key) {
         if (node == null) return false;
 
         searchPath.add(node);
         int i = 0;
-        while (i < node.keys.size() && key > node.keys.get(i)) {
+        while (i < node.keys.size() && key.compareTo(node.keys.get(i)) > 0) {
             i++;
         }
 
-        if (i < node.keys.size() && key == node.keys.get(i)) {
+        if (i < node.keys.size() && key.equals(node.keys.get(i))) {
             return true;
         }
 
@@ -127,7 +125,7 @@ class mpAlgo {
         return searchKey(node.children.get(i), key);
     }
 
-    public void delete(int key) {
+    public void delete(String key) {
         if (!search(key)) {
             System.out.println("Key " + key + " not found in the tree.");
             return;
@@ -138,13 +136,13 @@ class mpAlgo {
         }
     }
 
-    private void deleteKey(Node node, int key) {
+    private void deleteKey(Node node, String key) {
         int i = 0;
-        while (i < node.keys.size() && key > node.keys.get(i)) {
+        while (i < node.keys.size() && key.compareTo(node.keys.get(i)) > 0) {
             i++;
         }
 
-        if (i < node.keys.size() && node.keys.get(i) == key) {
+        if (i < node.keys.size() && node.keys.get(i).equals(key)) {
             if (node.isLeaf) {
                 node.keys.remove(i);
                 if (node != root && node.keys.size() < 1) {
@@ -155,7 +153,7 @@ class mpAlgo {
                 while (!predNode.isLeaf) {
                     predNode = predNode.children.get(predNode.children.size() - 1);
                 }
-                int predKey = predNode.keys.get(predNode.keys.size() - 1);
+                String predKey = predNode.keys.get(predNode.keys.size() - 1);
                 node.keys.set(i, predKey);
                 deleteKey(node.children.get(i), predKey);
             }
@@ -164,14 +162,13 @@ class mpAlgo {
             if (child.keys.size() == 1 && child != root) {
                 fixUnderflow(node, child);
                 i = 0;
-                while (i < node.keys.size() && key > node.keys.get(i)) {
+                while (i < node.keys.size() && key.compareTo(node.keys.get(i)) > 0) {
                     i++;
                 }
             }
             deleteKey(node.children.get(i), key);
         }
 
-        // After deletion, check if the current node has too many keys
         if (node.keys.size() > 2) {
             Node parent = findParent(root, node);
             if (parent == null) {
@@ -225,7 +222,6 @@ class mpAlgo {
             }
         }
 
-        // After fixing underflow, check if the parent has too many keys
         if (parent.keys.size() > 2) {
             Node grandParent = findParent(root, parent);
             if (grandParent == null) {
@@ -261,7 +257,7 @@ class mpAlgo {
 
         System.out.print("Level " + level + ": ");
         for (int i = 0; i < node.keys.size(); i++) {
-            System.out.print(String.format("%04d ", node.keys.get(i)));
+            System.out.print(String.format("%-4s ", node.keys.get(i)));
         }
         System.out.println();
 
@@ -278,31 +274,32 @@ class mpAlgo {
 
         while (true) {
             System.out.println("\n2-3 Tree Operations:");
-            System.out.println("1. Insert a number");
-            System.out.println("2. Delete a number");
-            System.out.println("3. Search for a number");
+            System.out.println("1. Insert a value");
+            System.out.println("2. Delete a value");
+            System.out.println("3. Search for a value");
             System.out.println("4. Print tree");
             System.out.println("5. Exit");
             System.out.print("Enter your choice: ");
 
             int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
 
             switch (choice) {
                 case 1:
-                    System.out.print("Enter number to insert: ");
-                    int insertKey = scanner.nextInt();
+                    System.out.print("Enter value to insert: ");
+                    String insertKey = scanner.nextLine();
                     tree.insert(insertKey);
                     System.out.println("Inserted " + insertKey);
                     break;
                 case 2:
-                    System.out.print("Enter number to delete: ");
-                    int deleteKey = scanner.nextInt();
+                    System.out.print("Enter value to delete: ");
+                    String deleteKey = scanner.nextLine();
                     tree.delete(deleteKey);
                     System.out.println("Deleted " + deleteKey);
                     break;
                 case 3:
-                    System.out.print("Enter number to search: ");
-                    int searchKey = scanner.nextInt();
+                    System.out.print("Enter value to search: ");
+                    String searchKey = scanner.nextLine();
                     boolean found = tree.search(searchKey);
                     System.out.println(searchKey + (found ? " found in tree" : " not found in tree"));
                     break;
