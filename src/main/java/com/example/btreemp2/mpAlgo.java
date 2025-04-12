@@ -7,13 +7,34 @@ import java.util.Scanner;
 public class mpAlgo {
     Node root;
     private List<Node> searchPath = new ArrayList<>();
+    private String keyType;
 
     public mpAlgo() {
         root = new Node(true);
+        this.keyType = null; // Initialize keyType as null
+    }
+    public void setKeyType(String keyType) {
+        this.keyType = keyType;
     }
 
     public List<Node> getSearchPath() {
         return searchPath;
+    }
+
+    private int compareKeys(String key1, String key2) {
+        if ("number".equals(keyType)) {
+            try {
+                int num1 = Integer.parseInt(key1);
+                int num2 = Integer.parseInt(key2);
+                return Integer.compare(num1, num2);
+            } catch (NumberFormatException e) {
+                // Fallback to string comparison if parsing fails
+                return key1.compareTo(key2);
+            }
+        } else {
+            // Use string comparison for alphabetic keys or if keyType is not set
+            return key1.compareTo(key2);
+        }
     }
 
     public void insert(String key) {
@@ -30,7 +51,7 @@ public class mpAlgo {
         int i = node.keys.size() - 1;
 
         if (node.isLeaf) {
-            while (i >= 0 && key.compareTo(node.keys.get(i)) < 0) {
+            while (i >= 0 && compareKeys(key, node.keys.get(i)) < 0) {
                 i--;
             }
             node.keys.add(i + 1, key);
@@ -48,7 +69,7 @@ public class mpAlgo {
                 }
             }
         } else {
-            while (i >= 0 && key.compareTo(node.keys.get(i)) < 0) {
+            while (i >= 0 && compareKeys(key, node.keys.get(i)) < 0) {
                 i--;
             }
             i++;
@@ -56,7 +77,7 @@ public class mpAlgo {
 
             if (child.keys.size() == 3) {
                 splitChild(node, i);
-                if (key.compareTo(node.keys.get(i)) > 0) {
+                if (compareKeys(key, node.keys.get(i)) > 0) {
                     i++;
                 }
             }
@@ -110,7 +131,7 @@ public class mpAlgo {
 
         searchPath.add(node);
         int i = 0;
-        while (i < node.keys.size() && key.compareTo(node.keys.get(i)) > 0) {
+        while (i < node.keys.size() && compareKeys(key, node.keys.get(i)) > 0) {
             i++;
         }
 
@@ -138,7 +159,7 @@ public class mpAlgo {
 
     private void deleteKey(Node node, String key) {
         int i = 0;
-        while (i < node.keys.size() && key.compareTo(node.keys.get(i)) > 0) {
+        while (i < node.keys.size() && compareKeys(key, node.keys.get(i)) > 0) {
             i++;
         }
 
@@ -162,7 +183,7 @@ public class mpAlgo {
             if (child.keys.size() == 1 && child != root) {
                 fixUnderflow(node, child);
                 i = 0;
-                while (i < node.keys.size() && key.compareTo(node.keys.get(i)) > 0) {
+                while (i < node.keys.size() && compareKeys(key, node.keys.get(i)) > 0) {
                     i++;
                 }
             }

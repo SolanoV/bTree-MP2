@@ -122,12 +122,30 @@ public class twoThreeTreeController extends Application implements Initializable
         }
         if (insertTextField != null) {
             insertTextField.setOnMouseClicked(event -> System.out.println("Insert text field clicked"));
+            insertTextField.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    System.out.println("Enter key pressed in insert text field");
+                    handleInsert();
+                }
+            });
         }
         if (deleteTextField != null) {
             deleteTextField.setOnMouseClicked(event -> System.out.println("Delete text field clicked"));
+            deleteTextField.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    System.out.println("Enter key pressed in delete text field");
+                    handleDelete();
+                }
+            });
         }
         if (searchTextField != null) {
             searchTextField.setOnMouseClicked(event -> System.out.println("Search text field clicked"));
+            searchTextField.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    System.out.println("Enter key pressed in search text field");
+                    handleSearch();
+                }
+            });
         }
 
         drawTree();
@@ -152,7 +170,12 @@ public class twoThreeTreeController extends Application implements Initializable
     }
 
     private boolean isNumeric(String str) {
-        return str.matches("\\d+");
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     private boolean isAlphabet(String str) {
@@ -168,8 +191,10 @@ public class twoThreeTreeController extends Application implements Initializable
         if (firstNodeType == null) {
             if (isNumeric(value)) {
                 firstNodeType = "number";
+                tree.setKeyType("number");
             } else if (isAlphabet(value)) {
                 firstNodeType = "alphabet";
+                tree.setKeyType("alphabet");
             } else {
                 showMessage("Input must be either a number or an alphabet");
                 return false;
@@ -264,6 +289,7 @@ public class twoThreeTreeController extends Application implements Initializable
         }
         saveState();
         tree = new mpAlgo();
+        tree.setKeyType(firstNodeType); // Restore keyType after clear
         firstNodeType = null;
         redoStack.clear();
         drawTree();
